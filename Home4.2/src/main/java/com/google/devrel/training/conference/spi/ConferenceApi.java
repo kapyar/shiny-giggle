@@ -5,6 +5,7 @@ import static com.google.devrel.training.conference.service.OfyService.ofy;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
+import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.users.User;
 import com.google.devrel.training.conference.Constants;
@@ -48,30 +49,39 @@ public class ConferenceApi {
 
     // TODO 1 Pass the ProfileForm parameter
     // TODO 2 Pass the User parameter
-    public Profile saveProfile() throws UnauthorizedException {
-
-        String userId = null;
-        String mainEmail = null;
-        String displayName = "Your name will go here";
-        TeeShirtSize teeShirtSize = TeeShirtSize.NOT_SPECIFIED;
+    // @Named("userId") String id, @Named("mainEmail") String email, @Named("name") String name
+    public Profile saveProfile(ProfileForm profileForm, User user) throws UnauthorizedException {
 
         // TODO 2
         // If the user is not logged in, throw an UnauthorizedException
+        if(user == null){
+            throw new UnauthorizedException("user is null");
+        }
 
         // TODO 1
         // Set the teeShirtSize to the value sent by the ProfileForm, if sent
         // otherwise leave it as the default value
+        TeeShirtSize teeShirtSize = profileForm.getTeeShirtSize();
+
+        // TODO 2
+        // Get the userId and mainEmail
+        String mainEmail = user.getEmail();
+        String userId = user.getUserId();
+
+        // TODO 2
+        // If the displayName is null, set it to default value based on the user's email
+        // by calling extractDefaultDisplayNameFromEmail(...)
 
         // TODO 1
         // Set the displayName to the value sent by the ProfileForm, if sent
         // otherwise set it to null
 
-        // TODO 2
-        // Get the userId and mainEmail
 
-        // TODO 2
-        // If the displayName is null, set it to default value based on the user's email
-        // by calling extractDefaultDisplayNameFromEmail(...)
+        String displayName = profileForm.getDisplayName();
+        if(displayName == null)
+        {
+            displayName = extractDefaultDisplayNameFromEmail(mainEmail);
+        }
 
         // Create a new Profile entity from the
         // userId, displayName, mainEmail and teeShirtSize
@@ -102,7 +112,7 @@ public class ConferenceApi {
 
         // TODO
         // load the Profile Entity
-        String userId = ""; // TODO
+        String userId = user.getUserId(); // TODO
         Key key = null; // TODO
         Profile profile = null; // TODO load the Profile entity
         return profile;
